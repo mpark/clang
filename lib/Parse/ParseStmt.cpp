@@ -1372,7 +1372,7 @@ StmtResult Parser::ParseInspectStatement(SourceLocation *TrailingElseLoc) {
   // C++ 3.3.2p4:
   // Names declared in the for-init-statement, and in the condition of if,
   // while, for, switch, and inspect statements are local to the if, while,
-  // for, or switch statement (including the controlled statement).
+  // for, switch, or inspect statement (including the controlled statement).
   ParseScope InspectScope(this, Scope::DeclScope | Scope::ControlScope);
 
   // Parse the condition.
@@ -1382,49 +1382,44 @@ StmtResult Parser::ParseInspectStatement(SourceLocation *TrailingElseLoc) {
                                 Sema::ConditionKind::Inspect))
     return StmtError();
 
-  if (Tok.isNot(tok::l_brace)) {
-    // FIXME(mpark)
-    Diag(Tok, diag::err_expected_lparen_after) << "inspect";
-    SkipUntil(tok::semi);
+  BalancedDelimiterTracker T(*this, tok::l_brace);
+  if (T.consumeOpen()) {
+    Diag(Tok, diag::err_expected) << tok::l_brace;
     return StmtError();
   }
 
-  llvm::outs() << "isInvalid: " << Cond.isInvalid();
+  StmtVector Stmts;
+  while (!tryParseMisplacedModuleImport() &&
+         Tok.isNot(tok::r_brace) &&
+         Tok.isNot(tok::eof)) {
+    ExprResult Pattern = ParseConstantExpression();
+    if (Pattern.isInvalid()) {
+      return StmtError();
+    }
 
-#if 0  // MPARK
-  StmtResult Inspect =
-      Actions.ActOnInspectStmt(InspectLoc, InitStmt.get(), Cond);
-
-  if (Switch.isInvalid()) {
-    // Skip the switch body.
-    // FIXME: This is not optimal recovery, but parsing the body is more
-    // dangerous due to the presence of case and default statements, which
-    // will have no place to connect back with the switch.
-    if (Tok.is(tok::l_brace)) {
-      ConsumeBrace();
-      SkipUntil(tok::r_brace);
-    } else
+    if (Tok.isNot(tok::bigarrow)) {
+      Diag(Tok, diag::err_expected) << tok::bigarrow;
       SkipUntil(tok::semi);
-    return Switch;
+      return StmtError();
+    }
+
+    ConsumeToken();
+
+    StmtResult R = ParseStatement();
+    if (R.isUsable())
+      Stmts.push_back(R.get());
   }
 
-  // C++ 6.4p1:
-  // The substatement in a selection-statement (each substatement, in the else
-  // form of the if statement) implicitly defines a local scope.
-  //
-  // See comments in ParseIfStatement for why we create a scope for the
-  // condition and a new scope for substatement in C++.
-  //
-  ParseScope InnerScope(this, Scope::DeclScope, C99orCXX, Tok.is(tok::l_brace));
+  llvm::outs() << "We've got " << Stmts.size() << " statements!\n";
 
-  // Read the body statement.
-  StmtResult Body(ParseStatement(TrailingElseLoc));
+  // Eat the }.
+  T.consumeClose();
 
-  // Pop the scopes.
-  InnerScope.Exit();
   InspectScope.Exit();
 
-#endif
+  // StmtResult Inspect =
+  //     Actions.ActOnInspectStmt(InspectLoc, InitStmt.get(), Cond);
+
   return StmtError();
 }
 

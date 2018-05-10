@@ -360,19 +360,40 @@ void StmtPrinter::VisitCXXForRangeStmt(CXXForRangeStmt *Node) {
   if (Policy.IncludeNewlines) OS << "\n";
 }
 
+void StmtPrinter::VisitCXXInspectStmt(CXXInspectStmt *) {
+  Indent() << "inspect (";
+  /*
+  if (const DeclStmt *DS = Node->getConditionVariableDeclStmt())
+    PrintRawDeclStmt(DS);
+  else
+    PrintExpr(Node->getCond());
+  OS << ")";
+
+  // Pretty print compoundstmt bodies (very common).
+  if (auto *CS = dyn_cast<CompoundStmt>(Node->getBody())) {
+    OS << " ";
+    PrintRawCompoundStmt(CS);
+    OS << "\n";
+  } else {
+    OS << "\n";
+    PrintStmt(Node->getBody());
+  }
+  */
+}
+
 void StmtPrinter::VisitMSDependentExistsStmt(MSDependentExistsStmt *Node) {
   Indent();
   if (Node->isIfExists())
     OS << "__if_exists (";
   else
     OS << "__if_not_exists (";
-  
+
   if (NestedNameSpecifier *Qualifier
         = Node->getQualifierLoc().getNestedNameSpecifier())
     Qualifier->print(OS, Policy);
-  
+
   OS << Node->getNameInfo() << ") ";
-  
+
   PrintRawCompoundStmt(Node->getSubStmt());
 }
 
@@ -990,7 +1011,7 @@ void OMPClausePrinter::VisitOMPMapClause(OMPMapClause *Node) {
     OS << "map(";
     if (Node->getMapType() != OMPC_MAP_unknown) {
       if (Node->getMapTypeModifier() != OMPC_MAP_unknown) {
-        OS << getOpenMPSimpleClauseTypeName(OMPC_map, 
+        OS << getOpenMPSimpleClauseTypeName(OMPC_map,
                                             Node->getMapTypeModifier());
         OS << ',';
       }
@@ -1619,12 +1640,12 @@ void StmtPrinter::VisitOffsetOfExpr(OffsetOfExpr *Node) {
     IdentifierInfo *Id = ON.getFieldName();
     if (!Id)
       continue;
-    
+
     if (PrintedSomething)
       OS << ".";
     else
       PrintedSomething = true;
-    OS << Id->getName();    
+    OS << Id->getName();
   }
   OS << ")";
 }
@@ -2646,7 +2667,7 @@ void StmtPrinter::VisitObjCDictionaryLiteral(ObjCDictionaryLiteral *E) {
   for (unsigned I = 0, N = E->getNumElements(); I != N; ++I) {
     if (I > 0)
       OS << ", ";
-    
+
     ObjCDictionaryElement Element = E->getKeyValueElement(I);
     Visit(Element.Key);
     OS << " : ";
@@ -2755,7 +2776,7 @@ void StmtPrinter::VisitBlockExpr(BlockExpr *Node) {
   OS << "{ }";
 }
 
-void StmtPrinter::VisitOpaqueValueExpr(OpaqueValueExpr *Node) { 
+void StmtPrinter::VisitOpaqueValueExpr(OpaqueValueExpr *Node) {
   PrintExpr(Node->getSourceExpr());
 }
 

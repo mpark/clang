@@ -55,16 +55,16 @@ namespace serialization {
     const unsigned VERSION_MINOR = 0;
 
     /// \brief An ID number that refers to an identifier in an AST file.
-    /// 
+    ///
     /// The ID numbers of identifiers are consecutive (in order of discovery)
     /// and start at 1. 0 is reserved for NULL.
     using IdentifierID = uint32_t;
-    
+
     /// \brief An ID number that refers to a declaration in an AST file.
     ///
     /// The ID numbers of declarations are consecutive (in order of
-    /// discovery), with values below NUM_PREDEF_DECL_IDS being reserved. 
-    /// At the start of a chain of precompiled headers, declaration ID 1 is 
+    /// discovery), with values below NUM_PREDEF_DECL_IDS being reserved.
+    /// At the start of a chain of precompiled headers, declaration ID 1 is
     /// used for the translation unit declaration.
     using DeclID = uint32_t;
 
@@ -98,14 +98,14 @@ namespace serialization {
       TypeID asTypeID(unsigned FastQuals) const {
         if (Idx == uint32_t(-1))
           return TypeID(-1);
-        
+
         return (Idx << Qualifiers::FastWidth) | FastQuals;
       }
 
       static TypeIdx fromTypeID(TypeID ID) {
         if (ID == TypeID(-1))
           return TypeIdx(-1);
-        
+
         return TypeIdx(ID >> Qualifiers::FastWidth);
       }
     };
@@ -124,7 +124,7 @@ namespace serialization {
       }
 
       static unsigned getHashValue(QualType T) {
-        assert(!T.getLocalFastQualifiers() && 
+        assert(!T.getLocalFastQualifiers() &&
                "hash invalid for types with fast quals");
         uintptr_t v = reinterpret_cast<uintptr_t>(T.getAsOpaquePtr());
         return (unsigned(v) >> 4) ^ (unsigned(v) >> 9);
@@ -155,8 +155,8 @@ namespace serialization {
 
     /// \brief The number of predefined selector IDs.
     const unsigned int NUM_PREDEF_SELECTOR_IDS = 1;
-    
-    /// \brief An ID number that refers to a set of CXXBaseSpecifiers in an 
+
+    /// \brief An ID number that refers to a set of CXXBaseSpecifiers in an
     /// AST file.
     using CXXBaseSpecifiersID = uint32_t;
 
@@ -170,7 +170,7 @@ namespace serialization {
 
     /// \brief An ID number that refers to a submodule in a module file.
     using SubmoduleID = uint32_t;
-    
+
     /// \brief The number of predefined submodule IDs.
     const unsigned int NUM_PREDEF_SUBMODULE_IDS = 1;
 
@@ -311,7 +311,7 @@ namespace serialization {
       /// generate the AST file, including both its file ID and its
       /// name.
       ORIGINAL_FILE,
-      
+
       /// \brief The directory that the PCH was originally created in.
       ORIGINAL_PCH_DIR,
 
@@ -706,15 +706,15 @@ namespace serialization {
     enum PreprocessorDetailRecordTypes {
       /// \brief Describes a macro expansion within the preprocessing record.
       PPD_MACRO_EXPANSION = 0,
-      
+
       /// \brief Describes a macro definition within the preprocessing record.
       PPD_MACRO_DEFINITION = 1,
-      
+
       /// \brief Describes an inclusion directive within the preprocessing
       /// record.
       PPD_INCLUSION_DIRECTIVE = 2
     };
-    
+
     /// \brief Record types used within a submodule description block.
     enum SubmoduleRecordTypes {
       /// \brief Metadata for submodules as a whole.
@@ -737,11 +737,11 @@ namespace serialization {
       /// \brief Specifies an umbrella directory.
       SUBMODULE_UMBRELLA_DIR = 5,
 
-      /// \brief Specifies the submodules that are imported by this 
+      /// \brief Specifies the submodules that are imported by this
       /// submodule.
       SUBMODULE_IMPORTS = 6,
 
-      /// \brief Specifies the submodules that are re-exported from this 
+      /// \brief Specifies the submodules that are re-exported from this
       /// submodule.
       SUBMODULE_EXPORTS = 7,
 
@@ -1128,7 +1128,7 @@ namespace serialization {
       /// \brief C ucontext_t typedef type
       SPECIAL_TYPE_UCONTEXT_T                  = 7
     };
-    
+
     /// \brief The number of special type IDs.
     const unsigned NumSpecialTypeIDs = 8;
 
@@ -1136,7 +1136,7 @@ namespace serialization {
     ///
     /// These declaration IDs correspond to predefined declarations in the AST
     /// context, such as the NULL declaration ID. Such declarations are never
-    /// actually serialized, since they will be built by the AST context when 
+    /// actually serialized, since they will be built by the AST context when
     /// it is created.
     enum PredefinedDeclIDs {
       /// \brief The NULL declaration.
@@ -1204,7 +1204,7 @@ namespace serialization {
     /// \brief Record code for a list of local redeclarations of a declaration.
     /// This can occur within DECLTYPES_BLOCK_ID.
     const unsigned int LOCAL_REDECLARATIONS = 50;
-    
+
     /// \brief Record codes for each kind of declaration.
     ///
     /// These constants describe the declaration records that can occur within
@@ -1464,7 +1464,7 @@ namespace serialization {
     ///
     /// These constants describe the records that describe statements
     /// or expressions. These records  occur within type and declarations
-    /// block, so they begin with record values of 128.  Each constant 
+    /// block, so they begin with record values of 128.  Each constant
     /// describes a record for a specific statement or expression class in the
     /// AST.
     enum StmtCode {
@@ -1666,7 +1666,7 @@ namespace serialization {
       EXPR_OBJC_BOXED_EXPRESSION,
       EXPR_OBJC_ARRAY_LITERAL,
       EXPR_OBJC_DICTIONARY_LITERAL,
-   
+
       /// \brief An ObjCEncodeExpr record.
       EXPR_OBJC_ENCODE,
 
@@ -1725,15 +1725,18 @@ namespace serialization {
       EXPR_OBJC_AVAILABILITY_CHECK,
 
       // C++
-      
+
       /// \brief A CXXCatchStmt record.
       STMT_CXX_CATCH,
 
       /// \brief A CXXTryStmt record.
       STMT_CXX_TRY,
-      /// \brief A CXXForRangeStmt record.
 
+      /// \brief A CXXForRangeStmt record.
       STMT_CXX_FOR_RANGE,
+
+      /// \brief A CXXInspectStmt record.
+      STMT_CXX_INSPECT,
 
       /// \brief A CXXOperatorCallExpr record.
       EXPR_CXX_OPERATOR_CALL,
@@ -1787,9 +1790,9 @@ namespace serialization {
       EXPR_CXX_NEW,               // CXXNewExpr
       EXPR_CXX_DELETE,            // CXXDeleteExpr
       EXPR_CXX_PSEUDO_DESTRUCTOR, // CXXPseudoDestructorExpr
-      
+
       EXPR_EXPR_WITH_CLEANUPS,    // ExprWithCleanups
-      
+
       EXPR_CXX_DEPENDENT_SCOPE_MEMBER,   // CXXDependentScopeMemberExpr
       EXPR_CXX_DEPENDENT_SCOPE_DECL_REF, // DependentScopeDeclRefExpr
       EXPR_CXX_UNRESOLVED_CONSTRUCT,     // CXXUnresolvedConstructExpr
@@ -1803,7 +1806,7 @@ namespace serialization {
       EXPR_BINARY_CONDITIONAL_OPERATOR,  // BinaryConditionalOperator
       EXPR_TYPE_TRAIT,            // TypeTraitExpr
       EXPR_ARRAY_TYPE_TRAIT,      // ArrayTypeTraitIntExpr
-      
+
       EXPR_PACK_EXPANSION,        // PackExpansionExpr
       EXPR_SIZEOF_PACK,           // SizeOfPackExpr
       EXPR_SUBST_NON_TYPE_TEMPLATE_PARM, // SubstNonTypeTemplateParmExpr
@@ -1813,7 +1816,7 @@ namespace serialization {
       EXPR_CXX_FOLD,              // CXXFoldExpr
 
       // CUDA
-      EXPR_CUDA_KERNEL_CALL,       // CUDAKernelCallExpr      
+      EXPR_CUDA_KERNEL_CALL,       // CUDAKernelCallExpr
 
       // OpenCL
       EXPR_ASTYPE,                 // AsTypeExpr
@@ -1923,22 +1926,22 @@ namespace serialization {
 
       // Offset into the array of redeclaration chains.
       unsigned Offset;
-      
+
       friend bool operator<(const LocalRedeclarationsInfo &X,
                             const LocalRedeclarationsInfo &Y) {
         return X.FirstID < Y.FirstID;
       }
-      
+
       friend bool operator>(const LocalRedeclarationsInfo &X,
                             const LocalRedeclarationsInfo &Y) {
         return X.FirstID > Y.FirstID;
       }
-      
+
       friend bool operator<=(const LocalRedeclarationsInfo &X,
                              const LocalRedeclarationsInfo &Y) {
         return X.FirstID <= Y.FirstID;
       }
-      
+
       friend bool operator>=(const LocalRedeclarationsInfo &X,
                              const LocalRedeclarationsInfo &Y) {
         return X.FirstID >= Y.FirstID;
@@ -1952,22 +1955,22 @@ namespace serialization {
 
       // Offset into the array of category lists.
       unsigned Offset;
-      
+
       friend bool operator<(const ObjCCategoriesInfo &X,
                             const ObjCCategoriesInfo &Y) {
         return X.DefinitionID < Y.DefinitionID;
       }
-      
+
       friend bool operator>(const ObjCCategoriesInfo &X,
                             const ObjCCategoriesInfo &Y) {
         return X.DefinitionID > Y.DefinitionID;
       }
-      
+
       friend bool operator<=(const ObjCCategoriesInfo &X,
                              const ObjCCategoriesInfo &Y) {
         return X.DefinitionID <= Y.DefinitionID;
       }
-      
+
       friend bool operator>=(const ObjCCategoriesInfo &X,
                              const ObjCCategoriesInfo &Y) {
         return X.DefinitionID >= Y.DefinitionID;

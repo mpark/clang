@@ -2170,6 +2170,8 @@ DEF_TRAVERSE_STMT(CXXForRangeStmt, {
   }
 })
 
+DEF_TRAVERSE_STMT(CXXInspectStmt, {})
+
 DEF_TRAVERSE_STMT(MSDependentExistsStmt, {
   TRY_TO(TraverseNestedNameSpecifierLoc(S->getQualifierLoc()));
   TRY_TO(TraverseDeclarationNameInfo(S->getNameInfo()));

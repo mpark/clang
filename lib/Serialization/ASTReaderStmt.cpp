@@ -1272,6 +1272,21 @@ void ASTStmtReader::VisitCXXForRangeStmt(CXXForRangeStmt *S) {
   S->setBody(Record.readSubStmt());
 }
 
+void ASTStmtReader::VisitCXXInspectStmt(CXXInspectStmt *S) {
+  VisitStmt(S);
+  // S->ForLoc = ReadSourceLocation();
+  // S->CoawaitLoc = ReadSourceLocation();
+  // S->ColonLoc = ReadSourceLocation();
+  // S->RParenLoc = ReadSourceLocation();
+  // S->setRangeStmt(Record.readSubStmt());
+  // S->setBeginStmt(Record.readSubStmt());
+  // S->setEndStmt(Record.readSubStmt());
+  // S->setCond(Record.readSubExpr());
+  // S->setInc(Record.readSubExpr());
+  // S->setLoopVarStmt(Record.readSubStmt());
+  // S->setBody(Record.readSubStmt());
+}
+
 void ASTStmtReader::VisitMSDependentExistsStmt(MSDependentExistsStmt *S) {
   VisitStmt(S);
   S->KeywordLoc = ReadSourceLocation();
@@ -3557,6 +3572,10 @@ Stmt *ASTReader::ReadStmtFromStream(ModuleFile &F) {
 
     case STMT_CXX_FOR_RANGE:
       S = new (Context) CXXForRangeStmt(Empty);
+      break;
+
+    case STMT_CXX_INSPECT:
+      S = new (Context) CXXInspectStmt(Empty);
       break;
 
     case STMT_MS_DEPENDENT_EXISTS:

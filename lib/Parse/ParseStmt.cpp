@@ -1388,14 +1388,14 @@ StmtResult Parser::ParseInspectStatement(SourceLocation *TrailingElseLoc) {
     return StmtError();
   }
 
+  ExprVector Exprs;
   StmtVector Stmts;
   while (!tryParseMisplacedModuleImport() &&
          Tok.isNot(tok::r_brace) &&
          Tok.isNot(tok::eof)) {
-    ExprResult Pattern = ParseConstantExpression();
-    if (Pattern.isInvalid()) {
-      return StmtError();
-    }
+    ExprResult E = ParseConstantExpression();
+    if (E.isUsable())
+      Exprs.push_back(E.get());
 
     if (Tok.isNot(tok::bigarrow)) {
       Diag(Tok, diag::err_expected) << tok::bigarrow;
@@ -1405,9 +1405,9 @@ StmtResult Parser::ParseInspectStatement(SourceLocation *TrailingElseLoc) {
 
     ConsumeToken();
 
-    StmtResult R = ParseStatement();
-    if (R.isUsable())
-      Stmts.push_back(R.get());
+    StmtResult S = ParseStatement();
+    if (S.isUsable())
+      Stmts.push_back(S.get());
   }
 
   llvm::outs() << "We've got " << Stmts.size() << " statements!\n";

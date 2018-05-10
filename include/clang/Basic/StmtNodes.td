@@ -47,6 +47,7 @@ def ObjCAutoreleasePoolStmt : Stmt;
 def CXXCatchStmt : Stmt;
 def CXXTryStmt : Stmt;
 def CXXForRangeStmt : Stmt;
+def CXXInspectStmt : Stmt;
 
 // C++ Coroutines TS statements
 def CoroutineBodyStmt : Stmt;
@@ -186,7 +187,7 @@ def TypoExpr : DStmt<Expr>;
 // Microsoft Extensions.
 def MSPropertyRefExpr : DStmt<Expr>;
 def MSPropertySubscriptExpr : DStmt<Expr>;
-def CXXUuidofExpr : DStmt<Expr>; 
+def CXXUuidofExpr : DStmt<Expr>;
 def SEHTryStmt : Stmt;
 def SEHExceptStmt : Stmt;
 def SEHFinallyStmt : Stmt;

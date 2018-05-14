@@ -1397,8 +1397,8 @@ StmtResult Parser::ParseInspectStatement(SourceLocation *TrailingElseLoc) {
     if (E.isUsable())
       Exprs.push_back(E.get());
 
-    if (Tok.isNot(tok::bigarrow)) {
-      Diag(Tok, diag::err_expected) << tok::bigarrow;
+    if (Tok.isNot(tok::colon)) {
+      Diag(Tok, diag::err_expected) << tok::colon;
       SkipUntil(tok::semi);
       return StmtError();
     }

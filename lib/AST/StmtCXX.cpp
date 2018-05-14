@@ -87,6 +87,35 @@ const VarDecl *CXXForRangeStmt::getLoopVariable() const {
   return const_cast<CXXForRangeStmt *>(this)->getLoopVariable();
 }
 
+CXXInspectStmt::CXXInspectStmt(const ASTContext &C,
+                               Stmt *Init,
+                               VarDecl *Var,
+                               Expr *Cond)
+    : Stmt(CXXInspectStmtClass) {
+  setConditionVariable(C, Var);
+  SubExprs[INIT] = Init;
+  SubExprs[COND] = Cond;
+}
+
+VarDecl *CXXInspectStmt::getConditionVariable() const {
+  if (!SubExprs[VAR])
+    return nullptr;
+
+  auto *DS = cast<DeclStmt>(SubExprs[VAR]);
+  return cast<VarDecl>(DS->getSingleDecl());
+}
+
+void CXXInspectStmt::setConditionVariable(const ASTContext &C, VarDecl *V) {
+  if (!V) {
+    SubExprs[VAR] = nullptr;
+    return;
+  }
+
+  SourceRange VarRange = V->getSourceRange();
+  SubExprs[VAR] = new (C) DeclStmt(DeclGroupRef(V), VarRange.getBegin(),
+                                   VarRange.getEnd());
+}
+
 CoroutineBodyStmt *CoroutineBodyStmt::Create(
     const ASTContext &C, CoroutineBodyStmt::CtorArgs const &Args) {
   std::size_t Size = totalSizeToAlloc<Stmt *>(

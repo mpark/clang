@@ -212,29 +212,35 @@ public:
 
 /// CXXInspectStmt - This represents an 'inspect' stmt.
 class CXXInspectStmt : public Stmt {
+  class CXXInspectCase {
+    enum { PATTERN, STMT, END };
+    Stmt* SubExprs[END];
+  };
+
   SourceLocation InspectLoc;
   enum { INIT, VAR, COND, END };
   Stmt* SubExprs[END];
+  SmallVector<CXXInspectCase, 32> InspectCases;
 
 public:
-  CXXInspectStmt(const ASTContext &C, Stmt *Init, VarDecl *Var, Expr *cond);
+  CXXInspectStmt(const ASTContext &C, Stmt *Init, VarDecl *Var, Expr *Cond);
 
   /// \brief Build an empty inspect statement.
   explicit CXXInspectStmt(EmptyShell Empty) : Stmt(CXXInspectStmtClass, Empty) {}
 
-#if 0  // MPARK
-  /// \brief Retrieve the variable declared in this "switch" statement, if any.
+  /// \brief Retrieve the variable declared in this "inspect" statement, if any.
   ///
   /// In the following example, "x" is the condition variable.
   /// \code
-  /// switch (int x = foo()) {
-  ///   case 0: break;
+  /// inspect (int x = foo()) {
+  ///   0: break;
   ///   // ...
   /// }
   /// \endcode
   VarDecl *getConditionVariable() const;
   void setConditionVariable(const ASTContext &C, VarDecl *V);
 
+#if 0  // MPARK
   /// If this SwitchStmt has a condition variable, return the faux DeclStmt
   /// associated with the creation of that condition variable.
   const DeclStmt *getConditionVariableDeclStmt() const {
